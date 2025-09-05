@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Game Room - 遊戲房間</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🎮 Web Game Room</h1>
+            <p>選擇你想玩的遊戲</p>
+        </header>
+
+        <main class="games-grid">
+            {% for game in games %}
+            <div class="game-card">
+                <div class="game-image">
+                    <img src="{{ url_for('static', filename=game.image) }}" alt="{{ game.name }}" onerror="this.style.display='none'">
+                </div>
+                <div class="game-info">
+                    <h3 class="game-title">{{ game.name }}</h3>
+                    <p class="game-description">{{ game.description }}</p>
+                    <a href="{{ game.url }}" class="play-button" target="_blank">
+                        <span>開始遊戲</span>
+                        <span class="play-icon">▶</span>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </main>
+
+        <footer class="footer">
+            <p>© 2025 Web Game Room - 本地遊戲開發測試環境</p>
+        </footer>
+    </div>
+</body>
+</html>
