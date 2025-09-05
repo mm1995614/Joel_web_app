@@ -7,9 +7,8 @@ def index():
     games = [
         {
             'name': '邊走邊吃',
-            'description': '策略棋類遊戲，利用不同大小的棋子進行三連線對戰',
+            'description': '雙人策略棋類遊戲，利用不同大小的棋子達成連線',
             'url': '/move-and-eat',
-            'image': 'games/move-and-eat.png'
         }
     ]
     return render_template('index.html', games=games)

@@ -16,9 +16,6 @@
         <main class="games-grid">
             {% for game in games %}
             <div class="game-card">
-                <div class="game-image">
-                    <img src="{{ url_for('static', filename=game.image) }}" alt="{{ game.name }}" onerror="this.style.display='none'">
-                </div>
                 <div class="game-info">
                     <h3 class="game-title">{{ game.name }}</h3>
                     <p class="game-description">{{ game.description }}</p>
@@ -32,7 +29,7 @@
         </main>
 
         <footer class="footer">
-            <p>© 2025 Web Game Room - 本地遊戲開發測試環境</p>
+            <p>© 2025 Web Game Room</p>
         </footer>
     </div>
 </body>
