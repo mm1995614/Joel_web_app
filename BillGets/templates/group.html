@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ group.name }} - BillGets</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>{{ group.name }}</h1>
+            <div class="header-actions">
+                <button id="settings-btn" class="btn btn-secondary">群組設定</button>
+                <a href="{{ url_for('index') }}" class="btn btn-outline">回到首頁</a>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <!-- 新增帳單表單 -->
+            <div class="add-bill-section">
+                <h2>新增帳單</h2>
+                <form id="add-bill-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="payer-select">付款人</label>
+                            <select id="payer-select" required>
+                                <option value="">請選擇付款人</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="bill-name">帳務名稱</label>
+                            <input type="text" id="bill-name" placeholder="輸入帳務名稱" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="category-select">類別</label>
+                            <select id="category-select" required>
+                                <option value="">請選擇類別</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="bill-date">日期</label>
+                            <input type="date" id="bill-date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="amount">金額</label>
+                            <input type="number" id="amount" step="0.01" placeholder="0.00" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="currency-select">幣別</label>
+                            <select id="currency-select" required>
+                                <option value="">請選擇幣別</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label>分帳設定</label>
+                            <div class="split-options">
+                                <label class="radio-item">
+                                    <input type="radio" name="split-mode" value="all" checked>
+                                    <span>所有人平分</span>
+                                </label>
+                                <label class="radio-item">
+                                    <input type="radio" name="split-mode" value="custom">
+                                    <span>自訂分帳</span>
+                                </label>
+                            </div>
+                            
+                            <div id="custom-split-section" class="custom-split-section" style="display: none;">
+                                <div class="split-help">
+                                    <p>💡 使用說明：選擇成員並設定分攤方式</p>
+                                    <ul>
+                                        <li><strong>指定金額</strong>：為每個成員輸入具體分攤金額，所有金額總和必須等於帳單總額</li>
+                                        <li><strong>均分</strong>：所有選中成員平均分攤帳單金額</li>
+                                        <li><strong>注意</strong>：不能混用指定金額和均分，請選擇其中一種方式</li>
+                                    </ul>
+                                </div>
+                                <div id="member-split-options" class="member-split-options">
+                                    <!-- 成員分帳選項將由 JavaScript 動態產生 -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">新增帳單</button>
+                </form>
+            </div>
+
+            <!-- 帳務清單 -->
+            <div class="bills-section">
+                <h2>帳務清單</h2>
+                <div class="filters">
+                    <input type="text" id="search-input" placeholder="搜尋帳務名稱">
+                    <select id="category-filter">
+                        <option value="">所有類別</option>
+                    </select>
+                    <select id="payer-filter">
+                        <option value="">所有付款人</option>
+                    </select>
+                </div>
+                <div class="date-filters">
+                    <div class="date-filter-group">
+                        <label for="start-date">開始日期：</label>
+                        <input type="date" id="start-date">
+                    </div>
+                    <div class="date-filter-group">
+                        <label for="end-date">結束日期：</label>
+                        <input type="date" id="end-date">
+                    </div>
+                    <button type="button" id="clear-date-filter" class="btn btn-small btn-secondary">清除日期篩選</button>
+                </div>
+                <div id="bills-list" class="bills-list"></div>
+            </div>
+
+            <!-- 分帳結果 -->
+            <div class="split-section">
+                <h2>分帳結果</h2>
+                <div id="split-result" class="split-result"></div>
+            </div>
+
+            <!-- 個人帳務明細 -->
+            <div class="member-details-section">
+                <h2>個人帳務明細</h2>
+                <div class="member-select">
+                    <label for="member-details-select">選擇成員：</label>
+                    <select id="member-details-select">
+                        <option value="">請選擇成員</option>
+                    </select>
+                </div>
+                <div id="member-details-result" class="member-details-result"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 群組設定對話框 -->
+    <div id="settings-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>群組設定</h2>
+            
+            <div class="settings-tabs">
+                <button class="tab-btn active" data-tab="group">群組資訊</button>
+                <button class="tab-btn" data-tab="members">成員管理</button>
+                <button class="tab-btn" data-tab="categories">類別管理</button>
+                <button class="tab-btn" data-tab="currencies">幣別管理</button>
+            </div>
+
+            <!-- 群組資訊 -->
+            <div id="group-tab" class="tab-content active">
+                <div class="form-group">
+                    <label for="group-name-edit">群組名稱</label>
+                    <input type="text" id="group-name-edit" value="{{ group.name }}">
+                </div>
+                <div class="form-group">
+                    <label for="group-pin-edit">PIN碼</label>
+                    <input type="text" id="group-pin-edit" value="{{ group.pin_code }}" maxlength="6" pattern="[0-9]{6}" placeholder="請輸入6位數字PIN碼">
+                </div>
+                <div class="group-actions">
+                    <button id="save-group-name" class="btn btn-primary">儲存</button>
+                    <button id="delete-group-btn" class="btn btn-danger">刪除群組</button>
+                </div>
+            </div>
+
+            <!-- 成員管理 -->
+            <div id="members-tab" class="tab-content">
+                <div class="add-item">
+                    <input type="text" id="new-member-name" placeholder="成員名稱">
+                    <button id="add-member-btn" class="btn btn-primary">新增成員</button>
+                </div>
+                <div id="members-list" class="items-list"></div>
+            </div>
+
+            <!-- 類別管理 -->
+            <div id="categories-tab" class="tab-content">
+                <div class="add-item">
+                    <input type="text" id="new-category-name" placeholder="類別名稱">
+                    <button id="add-category-btn" class="btn btn-primary">新增類別</button>
+                </div>
+                <div id="categories-list" class="items-list"></div>
+            </div>
+
+            <!-- 幣別管理 -->
+            <div id="currencies-tab" class="tab-content">
+                <div class="add-item">
+                    <input type="text" id="new-currency-code" placeholder="幣別代碼 (如: USD)" maxlength="3">
+                    <input type="text" id="new-currency-name" placeholder="幣別名稱 (如: 美金)">
+                    <input type="number" id="new-currency-rate" step="0.0001" placeholder="對台幣匯率">
+                    <button id="add-currency-btn" class="btn btn-primary">新增幣別</button>
+                </div>
+                <div id="currencies-list" class="items-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 確認刪除對話框 -->
+    <div id="confirm-delete-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>確認刪除</h2>
+            <p id="delete-message">確定要刪除嗎？此操作無法復原。</p>
+            <div class="confirm-actions">
+                <button id="confirm-delete-btn" class="btn btn-danger">確定刪除</button>
+                <button id="cancel-delete-btn" class="btn btn-secondary">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 編輯對話框 -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="edit-title">編輯</h2>
+            <form id="edit-form">
+                <div id="edit-fields"></div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">儲存</button>
+                    <button type="button" id="cancel-edit-btn" class="btn btn-secondary">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 編輯帳單對話框 -->
+    <div id="edit-bill-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>編輯帳單</h2>
+            <form id="edit-bill-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit-payer-select">付款人</label>
+                        <select id="edit-payer-select" required>
+                            <option value="">請選擇付款人</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-bill-name">帳務名稱</label>
+                        <input type="text" id="edit-bill-name" placeholder="輸入帳務名稱" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit-category-select">類別</label>
+                        <select id="edit-category-select" required>
+                            <option value="">請選擇類別</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-bill-date">日期</label>
+                        <input type="date" id="edit-bill-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-amount">金額</label>
+                        <input type="number" id="edit-amount" step="0.01" placeholder="0.00" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-currency-select">幣別</label>
+                        <select id="edit-currency-select" required>
+                            <option value="">請選擇幣別</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label>分帳設定</label>
+                        <div class="split-options">
+                            <label class="radio-item">
+                                <input type="radio" name="edit-split-mode" value="all" checked>
+                                <span>所有人平分</span>
+                            </label>
+                            <label class="radio-item">
+                                <input type="radio" name="edit-split-mode" value="custom">
+                                <span>自訂分帳</span>
+                            </label>
+                        </div>
+                        
+                        <div id="edit-custom-split-section" class="custom-split-section" style="display: none;">
+                            <div class="split-help">
+                                <p>💡 使用說明：選擇成員並設定分攤方式</p>
+                                <ul>
+                                    <li><strong>指定金額</strong>：為每個成員輸入具體分攤金額，所有金額總和必須等於帳單總額</li>
+                                    <li><strong>均分</strong>：所有選中成員平均分攤帳單金額</li>
+                                    <li><strong>注意</strong>：不能混用指定金額和均分，請選擇其中一種方式</li>
+                                </ul>
+                            </div>
+                            <div id="edit-member-split-options" class="member-split-options">
+                                <!-- 成員分帳選項將由 JavaScript 動態產生 -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">儲存</button>
+                    <button type="button" id="cancel-edit-bill-btn" class="btn btn-secondary">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const GROUP_ID = {{ group.id }};
+    </script>
+    <script src="{{ url_for('static', filename='js/group.js') }}"></script>
+</body>
+</html>

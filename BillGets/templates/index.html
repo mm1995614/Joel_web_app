@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BillGets - 記帳分帳小幫手</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>BillGets 記帳分帳小幫手</h1>
+        
+        <div class="actions">
+            <button id="create-group-btn" class="btn btn-primary">新增群組</button>
+        </div>
+        
+        {% if groups %}
+        <div class="groups-section">
+            <h2>現有群組</h2>
+            <div class="groups-list">
+                {% for group in groups %}
+                <div class="group-item" data-group-id="{{ group.id }}">
+                    <h3>{{ group.name }}</h3>
+                    <button class="btn btn-secondary join-group-btn" data-group-id="{{ group.id }}">加入群組</button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
+    </div>
+
+    <!-- 新增群組對話框 -->
+    <div id="create-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>新增群組</h2>
+            <form id="create-group-form">
+                <input type="text" id="group-name" placeholder="群組名稱" required>
+                <button type="submit" class="btn btn-primary">建立群組</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- PIN碼顯示對話框 -->
+    <div id="pin-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>群組建立成功！</h2>
+            <p>您的PIN碼是：<strong id="generated-pin"></strong></p>
+            <p>請記住這個PIN碼，其他人需要用它來加入群組。</p>
+            <button id="goto-group" class="btn btn-primary">進入群組</button>
+        </div>
+    </div>
+
+    <!-- PIN碼輸入對話框 -->
+    <div id="join-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>輸入PIN碼</h2>
+            <p>請輸入群組的6位數PIN碼：</p>
+            <form id="join-group-form">
+                <input type="text" id="pin-input" placeholder="請輸入6位數PIN碼" maxlength="6" required>
+                <button type="submit" class="btn btn-primary">加入群組</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
+</body>
+</html>
