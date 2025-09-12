@@ -43,9 +43,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function loadData() {
         Promise.all([
-            fetch(`/api/group/${GROUP_ID}/members`).then(r => r.json()),
-            fetch(`/api/group/${GROUP_ID}/categories`).then(r => r.json()),
-            fetch(`/api/group/${GROUP_ID}/currencies`).then(r => r.json())
+            fetch(window.apiUrls.groupMembers).then(r => r.json()),
+            fetch(window.apiUrls.groupCategories).then(r => r.json()),
+            fetch(window.apiUrls.groupCurrencies).then(r => r.json())
         ]).then(([membersData, categoriesData, currenciesData]) => {
             members = membersData;
             categories = categoriesData;
@@ -345,7 +345,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const startDate = document.getElementById('start-date').value;
         const endDate = document.getElementById('end-date').value;
         
-        let url = `/api/group/${GROUP_ID}/bills?`;
+        let url = window.apiUrls.groupBills + '?';
         if (searchValue) url += `search=${encodeURIComponent(searchValue)}&`;
         if (categoryValue) url += `category=${categoryValue}&`;
         if (payerValue) url += `payer=${payerValue}&`;
@@ -408,7 +408,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function calculateSplit() {
-        fetch(`/api/group/${GROUP_ID}/split`)
+        fetch(window.apiUrls.groupSplit)
             .then(response => response.json())
             .then(data => {
                 const splitResult = document.getElementById('split-result');
@@ -503,7 +503,7 @@ document.addEventListener('DOMContentLoaded', function() {
             split_data: splitData
         };
         
-        fetch(`/api/group/${GROUP_ID}/bills`, {
+        fetch(window.apiUrls.groupBills, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -728,12 +728,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 name: document.getElementById('edit-currency-name').value,
                 rate_to_twd: parseFloat(document.getElementById('edit-currency-rate').value)
             };
-            url = `/api/currency/${currentEditItem.id}`;
+            url = window.apiUrls.currencyBase + currentEditItem.id;
         } else {
             data = {
                 name: document.getElementById('edit-name').value
             };
-            url = `/api/${currentEditItem.type}/${currentEditItem.id}`;
+            if (currentEditItem.type === 'member') {
+                url = window.apiUrls.memberBase + currentEditItem.id;
+            } else if (currentEditItem.type === 'category') {
+                url = window.apiUrls.categoryBase + currentEditItem.id;
+            }
         }
         
         fetch(url, {
@@ -761,7 +765,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Delete functions
     function deleteMember(id) {
-        fetch(`/api/member/${id}`, { method: 'DELETE' })
+        fetch(window.apiUrls.memberBase + id, { method: 'DELETE' })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -778,7 +782,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function deleteCategory(id) {
-        fetch(`/api/category/${id}`, { method: 'DELETE' })
+        fetch(window.apiUrls.categoryBase + id, { method: 'DELETE' })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -795,7 +799,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function deleteCurrency(id) {
-        fetch(`/api/currency/${id}`, { method: 'DELETE' })
+        fetch(window.apiUrls.currencyBase + id, { method: 'DELETE' })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -812,7 +816,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function deleteBill(id) {
-        fetch(`/api/bill/${id}`, { method: 'DELETE' })
+        fetch(window.apiUrls.billBase + id, { method: 'DELETE' })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -953,7 +957,7 @@ document.addEventListener('DOMContentLoaded', function() {
             split_data: splitData
         };
         
-        fetch(`/api/bill/${currentEditItem.id}`, {
+        fetch(window.apiUrls.billBase + currentEditItem.id, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -983,7 +987,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const name = document.getElementById('new-member-name').value.trim();
         if (!name) return;
         
-        fetch(`/api/group/${GROUP_ID}/members`, {
+        fetch(window.apiUrls.groupMembers, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name })
@@ -1004,7 +1008,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const name = document.getElementById('new-category-name').value.trim();
         if (!name) return;
         
-        fetch(`/api/group/${GROUP_ID}/categories`, {
+        fetch(window.apiUrls.groupCategories, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name })
@@ -1028,7 +1032,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (!code || !name || !rate) return;
         
-        fetch(`/api/group/${GROUP_ID}/currencies`, {
+        fetch(window.apiUrls.groupCurrencies, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ code, name, rate_to_twd: rate })
@@ -1067,7 +1071,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        fetch(`/api/group/${GROUP_ID}`, {
+        fetch(window.apiUrls.groupUpdate, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name: newName, pin_code: newPin })
@@ -1089,12 +1093,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
     document.getElementById('delete-group-btn').addEventListener('click', function() {
         showDeleteConfirm('群組', document.getElementById('group-name-edit').value, function() {
-            fetch(`/api/group/${GROUP_ID}`, { method: 'DELETE' })
+            fetch(window.apiUrls.groupDelete, { method: 'DELETE' })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
                         alert('群組刪除成功！');
-                        window.location.href = '/';
+                        window.location.href = '/billgets/';
                     } else {
                         alert(data.error || '群組刪除失敗');
                     }
@@ -1114,7 +1118,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        fetch(`/api/group/${GROUP_ID}/member-details/${memberId}`)
+        fetch(window.apiUrls.memberDetails + memberId)
             .then(response => response.json())
             .then(data => {
                 const resultDiv = document.getElementById('member-details-result');

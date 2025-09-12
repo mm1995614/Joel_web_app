@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web Game Room - 遊戲房間</title>
+    <title>Apps made by Joel</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
     <div class="container">
         <header class="header">
-            <h1>🎮 Web Game Room</h1>
-            <p>選擇你想玩的遊戲</p>
+            <h1>📱 Apps made by Joel</h1>
+            <p>請選擇要使用的應用程式</p>
         </header>
 
         <main class="games-grid">
@@ -20,7 +20,7 @@
                     <h3 class="game-title">{{ game.name }}</h3>
                     <p class="game-description">{{ game.description }}</p>
                     <a href="{{ game.url }}" class="play-button" target="_blank">
-                        <span>開始遊戲</span>
+                        <span>{{ game.button_text }}</span>
                         <span class="play-icon">▶</span>
                     </a>
                 </div>
@@ -29,7 +29,7 @@
         </main>
 
         <footer class="footer">
-            <p>© 2025 Web Game Room</p>
+            <p>© 2025 Apps made by Joel</p>
         </footer>
     </div>
 </body>

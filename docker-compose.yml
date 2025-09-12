@@ -1,12 +1,64 @@
-version: '3.8'
-
 services:
-  web-game-room:
-    build: .
-    ports:
-      - "3000:3000"
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: joel_web_app_db
     environment:
-      - FLASK_ENV=development
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
     volumes:
-      - .:/app
+      - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
+
+  # Main Web App (Entry Point)
+  webapp:
+    build: ./webapp
+    container_name: joel_web_app_main
+    environment:
+      - FLASK_ENV=${FLASK_ENV}
+    volumes:
+      - ./webapp:/app
+    restart: unless-stopped
+
+  # BillGets Service
+  billgets:
+    build: ./BillGets
+    container_name: joel_web_app_billgets
+    environment:
+      - FLASK_ENV=${FLASK_ENV}
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+    volumes:
+      - ./BillGets:/app
+    restart: unless-stopped
+    depends_on:
+      - postgres
+
+  # Move and Eat Game Service
+  move-and-eat:
+    build: ./Move_and_Eat
+    container_name: joel_web_app_move_eat
+    environment:
+      - FLASK_ENV=${FLASK_ENV}
+    volumes:
+      - ./Move_and_Eat:/app
+    restart: unless-stopped
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: joel_web_app_nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    restart: unless-stopped
+    depends_on:
+      - webapp
+      - billgets
+      - move-and-eat
+
+volumes:
+  postgres_data:

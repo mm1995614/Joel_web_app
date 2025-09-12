@@ -20,17 +20,5 @@ def index():
     ]
     return render_template('index.html', games=games)
 
-# Move and Eat game routes
-@app.route('/move-and-eat')
-def move_and_eat():
-    return render_template('move-and-eat/index.html')
-
-# Static files for Move and Eat
-@app.route('/move-and-eat/static/<path:filename>')
-def move_and_eat_static(filename):
-    from flask import send_from_directory
-    import os
-    return send_from_directory(os.path.join(app.root_path, 'Move_and_Eat', 'static'), filename)
-
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8000, debug=True)
+    app.run(host='0.0.0.0', port=3000, debug=True)

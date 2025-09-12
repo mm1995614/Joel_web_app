@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
         e.preventDefault();
         const groupName = document.getElementById('group-name').value;
         
-        fetch('/create_group', {
+        fetch(window.flaskUrls.createGroup, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 pinModal.style.display = 'block';
                 
                 document.getElementById('goto-group').onclick = function() {
-                    window.location.href = '/group/' + data.group_id;
+                    window.location.href = window.flaskUrls.groupBase + data.group_id;
                 };
             }
         })
@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     function joinGroup(pinCode) {
-        fetch('/join_group', {
+        fetch(window.flaskUrls.joinGroup, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                window.location.href = '/group/' + data.group_id;
+                window.location.href = window.flaskUrls.groupBase + data.group_id;
             } else {
                 alert(data.message || 'PIN碼錯誤');
             }
