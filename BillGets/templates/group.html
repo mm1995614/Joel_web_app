@@ -304,19 +304,19 @@
         // API路徑配置
         window.apiUrls = {
             // 群組API
-            groupMembers: "/billgets/api/group/" + GROUP_ID + "/members",
-            groupCategories: "/billgets/api/group/" + GROUP_ID + "/categories", 
-            groupCurrencies: "/billgets/api/group/" + GROUP_ID + "/currencies",
-            groupBills: "/billgets/api/group/" + GROUP_ID + "/bills",
-            groupSplit: "/billgets/api/group/" + GROUP_ID + "/split",
-            groupUpdate: "/billgets/api/group/" + GROUP_ID,
-            groupDelete: "/billgets/api/group/" + GROUP_ID,
+            groupMembers: "/api/group/" + GROUP_ID + "/members",
+            groupCategories: "/api/group/" + GROUP_ID + "/categories", 
+            groupCurrencies: "/api/group/" + GROUP_ID + "/currencies",
+            groupBills: "/api/group/" + GROUP_ID + "/bills",
+            groupSplit: "/api/group/" + GROUP_ID + "/split",
+            groupUpdate: "/api/group/" + GROUP_ID,
+            groupDelete: "/api/group/" + GROUP_ID,
             // 個別項目API
-            memberBase: "/billgets/api/member/",
-            categoryBase: "/billgets/api/category/",
-            currencyBase: "/billgets/api/currency/",
-            billBase: "/billgets/api/bill/",
-            memberDetails: "/billgets/api/group/" + GROUP_ID + "/member-details/"
+            memberBase: "/api/member/",
+            categoryBase: "/api/category/",
+            currencyBase: "/api/currency/",
+            billBase: "/api/bill/",
+            memberDetails: "/api/group/" + GROUP_ID + "/member-details/"
         };
     </script>
     <script src="{{ url_for('static', filename='js/group.js') }}"></script>
