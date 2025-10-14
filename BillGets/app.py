@@ -541,12 +541,35 @@ def get_member_details(group_id, member_id):
     ).all()
     
     paid_details = []
+    total_paid_by_member = 0  # 計算付款中自己的分擔
+    
     for bill in bills_paid:
         split_members = [split.member.name for split in bill.splits] if bill.splits else [m.name for m in Member.query.filter_by(group_id=group_id).all()]
+        
+        # 計算這筆帳單中該成員的個人分擔
+        member_share_in_paid_bill = 0
+        if bill.splits:
+            member_split = BillSplit.query.filter_by(bill_id=bill.id, member_id=member_id).first()
+            if member_split:
+                if member_split.share_type == 'fixed' and member_split.amount:
+                    member_share_in_paid_bill = member_split.amount
+                else:
+                    total_fixed = sum(s.amount for s in bill.splits if s.share_type == 'fixed' and s.amount)
+                    equal_splits = [s for s in bill.splits if s.share_type == 'equal']
+                    remaining_amount = bill.amount - total_fixed
+                    member_share_in_paid_bill = remaining_amount / len(equal_splits) if equal_splits else 0
+        else:
+            # 預設所有成員平分
+            all_members_count = Member.query.filter_by(group_id=group_id).count()
+            member_share_in_paid_bill = bill.amount / all_members_count if all_members_count > 0 else 0
+            
+        total_paid_by_member += member_share_in_paid_bill
+        
         paid_details.append({
             'id': bill.id,
             'name': bill.name,
             'amount': bill.amount,
+            'member_share': member_share_in_paid_bill,  # 新增個人分擔
             'currency_code': bill.currency.code,
             'category_name': bill.category.name,
             'split_members': split_members,
@@ -557,6 +580,8 @@ def get_member_details(group_id, member_id):
         })
     
     split_details = []
+    total_split_by_member = 0  # 計算參與分帳的總金額
+    
     for bill in bills_split:
         if bill.payer_id != member_id:  # Don't duplicate bills where member is both payer and splitter
             # Find the specific split record for this member
@@ -573,6 +598,8 @@ def get_member_details(group_id, member_id):
                     remaining_amount = bill.amount - total_fixed
                     member_share = remaining_amount / len(equal_splits) if equal_splits else 0
                 
+                total_split_by_member += member_share
+                
                 split_details.append({
                     'id': bill.id,
                     'name': bill.name,
@@ -587,8 +614,12 @@ def get_member_details(group_id, member_id):
                     'type': 'split'
                 })
     
+    # 計算總支出 = 付款中的個人分擔 + 參與分帳的金額
+    total_expense = total_paid_by_member + total_split_by_member
+    
     return jsonify({
         'member_name': member.name,
+        'total_expense': round(total_expense, 2),  # 總支出
         'paid_bills': paid_details,
         'split_bills': split_details
     })

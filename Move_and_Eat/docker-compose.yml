@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  # Move and Eat Game Service
+  move-and-eat:
+    build: .
+    container_name: move_and_eat_app
+    environment:
+      - PORT=5000
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
+    restart: unless-stopped

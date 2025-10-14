@@ -1125,6 +1125,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 resultDiv.innerHTML = `
                     <h3>${data.member_name} 的帳務明細</h3>
                     
+                    <div class="detail-section total-expense">
+                        <h4>總支出</h4>
+                        <div class="total-expense-amount">
+                            <strong style="font-size: 1.2em; color: #e74c3c;">NT$ ${data.total_expense}</strong>
+                        </div>
+                    </div>
+                    
                     <div class="detail-section">
                         <h4>已付款項目</h4>
                         ${data.paid_bills.length === 0 ? '<p>無付款記錄</p>' : 
